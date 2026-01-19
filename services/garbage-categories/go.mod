@@ -1,4 +1,4 @@
-module github.com/ISAWASHUN/move-rule/services/waste-categories-data
+module github.com/ISAWASHUN/move-rule/services/garbage-categories-data
 
 go 1.25.5
 

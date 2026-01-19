@@ -67,7 +67,7 @@ type Municipality struct {
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
-type WasteCategory struct {
+type GarbageCategory struct {
 	ID        int       `gorm:"primaryKey;autoIncrement"`
 	Name      string    `gorm:"size:255;uniqueIndex;not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
@@ -77,7 +77,7 @@ type WasteCategory struct {
 type GarbageItem struct {
 	ID              int       `gorm:"primaryKey;autoIncrement"`
 	MunicipalityID  int       `gorm:"not null"`
-	WasteCategoryID int       `gorm:"not null"`
+	GarbageCategoryID int       `gorm:"not null"`
 	AreaName        string    `gorm:"size:255"`
 	ItemName        string    `gorm:"size:255;not null"`
 	Notes           string    `gorm:"type:text"`
@@ -142,7 +142,7 @@ func truncateTables(db *gorm.DB) error {
 		return err
 	}
 
-	tables := []string{"garbage_items", "waste_categories", "municipalities"}
+	tables := []string{"garbage_items", "garbage_categories", "municipalities"}
 	for _, table := range tables {
 		if err := db.Exec(fmt.Sprintf("TRUNCATE TABLE %s", table)).Error; err != nil {
 			return err
@@ -212,7 +212,7 @@ func fetchData(url string) ([]Hits, error) {
 
 func saveData(db *gorm.DB, hits []Hits) error {
 	municipalityCache := make(map[int]int)
-	wasteCategoryCache := make(map[string]int)
+	garbageCategoryCache := make(map[string]int)
 
 	for _, hit := range hits {
 		municipalityID, err := getOrCreateMunicipality(db, hit.MunicipalityCode, hit.MunicipalityName, municipalityCache)
@@ -220,9 +220,9 @@ func saveData(db *gorm.DB, hits []Hits) error {
 			return fmt.Errorf("failed to save municipality: %w", err)
 		}
 
-		wasteCategoryID, err := getOrCreateWasteCategory(db, hit.Category, wasteCategoryCache)
+		garbageCategoryID, err := getOrCreateGarbageCategory(db, hit.Category, garbageCategoryCache)
 		if err != nil {
-			return fmt.Errorf("failed to save waste category: %w", err)
+			return fmt.Errorf("failed to save garbage category: %w", err)
 		}
 
 		var bulkGarbageFee *int
@@ -234,8 +234,8 @@ func saveData(db *gorm.DB, hits []Hits) error {
 		}
 
 		garbageItem := GarbageItem{
-			MunicipalityID:  municipalityID,
-			WasteCategoryID: wasteCategoryID,
+			MunicipalityID:   municipalityID,
+			GarbageCategoryID: garbageCategoryID,
 			AreaName:        hit.AreaName,
 			ItemName:        hit.ItemName,
 			Notes:           hit.Notes,
@@ -269,7 +269,7 @@ func getOrCreateMunicipality(db *gorm.DB, code int, name string, cache map[int]i
 	return municipality.ID, nil
 }
 
-func getOrCreateWasteCategory(db *gorm.DB, name string, cache map[string]int) (int, error) {
+func getOrCreateGarbageCategory(db *gorm.DB, name string, cache map[string]int) (int, error) {
 	if name == "" {
 		name = "未分類"
 	}
@@ -278,14 +278,14 @@ func getOrCreateWasteCategory(db *gorm.DB, name string, cache map[string]int) (i
 		return id, nil
 	}
 
-	wasteCategory := WasteCategory{
+	garbageCategory := GarbageCategory{
 		Name: name,
 	}
 
-	if err := db.Create(&wasteCategory).Error; err != nil {
+	if err := db.Create(&garbageCategory).Error; err != nil {
 		return 0, err
 	}
 
-	cache[name] = wasteCategory.ID
-	return wasteCategory.ID, nil
+	cache[name] = garbageCategory.ID
+	return garbageCategory.ID, nil
 }

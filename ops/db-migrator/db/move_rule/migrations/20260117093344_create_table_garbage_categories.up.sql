@@ -1,4 +1,4 @@
-CREATE TABLE waste_categories (
+CREATE TABLE garbage_categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE COMMENT '分別区分名',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'レコード作成日時',
