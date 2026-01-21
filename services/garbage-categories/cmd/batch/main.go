@@ -18,7 +18,6 @@ import (
 const (
 	baseUrl      = "https://service.api.metro.tokyo.lg.jp"
 	itabashiUrl  = baseUrl + "/api/t131199d3000000001-10af70080e2503877feb2bf2c9a42171-0/json"
-	tachikawaUrl = baseUrl + "/api/t132021d3000000001-ef24963d14f44ffddea8de17cb2d0ea6-0/json"
 )
 
 type APIResponse struct {
@@ -97,7 +96,7 @@ func main() {
 		log.Fatalf("failed to truncate tables: %v", err)
 	}
 
-	urls := []string{itabashiUrl, tachikawaUrl}
+	urls := []string{itabashiUrl}
 	var allHits []Hits
 
 	for _, url := range urls {
