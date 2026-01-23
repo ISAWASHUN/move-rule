@@ -5,34 +5,8 @@ import (
 	"math/rand"
 
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/domain"
-	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/repository"
+	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository"
 )
-
-var categoryMasterList = []string{
-	"可燃",
-	"不燃",
-	"資源",
-	"粗大",
-	"有害ごみ",
-	"容器包装プラスチック",
-	"製品プラスチック",
-	"古布",
-	"新聞・折込チラシ",
-	"雑誌・本・雑がみ",
-	"段ボール・茶色紙",
-	"牛乳等紙パック",
-	"缶",
-	"びん",
-	"ペットボトル",
-	"燃やせるごみ",
-	"燃やせないごみ",
-	"粗大ごみ",
-	"拠点",
-	"不可",
-	"処理困難物【市での収集は不可】",
-	"パソコン【市での収集は不可】",
-	"家電リサイクル法対象品【市での収集は不可】",
-}
 
 type Question struct {
 	ID       int
@@ -81,7 +55,16 @@ func (u *quizUseCase) GenerateQuestions(ctx context.Context, municipalityID int,
 		return []Question{}, nil
 	}
 
-	// ランダムに選択
+	allCategories, err := u.garbageCategoryRepo.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	categoryNames := make([]string, len(allCategories))
+	for i, cat := range allCategories {
+		categoryNames[i] = cat.Name
+	}
+
 	selectedItems := selectRandomItems(allItems, count)
 
 	questions := make([]Question, len(selectedItems))
@@ -91,7 +74,7 @@ func (u *quizUseCase) GenerateQuestions(ctx context.Context, municipalityID int,
 			return nil, err
 		}
 
-		choices := generateChoices(category.Name)
+		choices := generateChoices(category.Name, categoryNames)
 
 		questions[i] = Question{
 			ID:       int(item.ID),
@@ -108,7 +91,6 @@ func selectRandomItems(items []domain.GarbageItem, count int) []domain.GarbageIt
 		return items
 	}
 
-	// インデックスをシャッフルしてから選択
 	indices := make([]int, len(items))
 	for i := range indices {
 		indices[i] = i
@@ -149,9 +131,9 @@ func (u *quizUseCase) CheckAnswer(ctx context.Context, questionID int, selectedC
 	}, nil
 }
 
-func generateChoices(correctCategory string) []string {
-	wrongCategories := make([]string, 0, len(categoryMasterList)-1)
-	for _, cat := range categoryMasterList {
+func generateChoices(correctCategory string, categoryList []string) []string {
+	wrongCategories := make([]string, 0, len(categoryList)-1)
+	for _, cat := range categoryList {
 		if cat != correctCategory {
 			wrongCategories = append(wrongCategories, cat)
 		}
@@ -163,7 +145,11 @@ func generateChoices(correctCategory string) []string {
 
 	choices := make([]string, 4)
 	choices[0] = correctCategory
-	copy(choices[1:], wrongCategories[:3])
+	copyCount := 3
+	if len(wrongCategories) < copyCount {
+		copyCount = len(wrongCategories)
+	}
+	copy(choices[1:1+copyCount], wrongCategories[:copyCount])
 
 	rand.Shuffle(len(choices), func(i, j int) {
 		choices[i], choices[j] = choices[j], choices[i]

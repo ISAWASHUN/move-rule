@@ -28,11 +28,11 @@ import (
 
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/config"
 	_ "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/docs"
-	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/handler"
-	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/logger"
-	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/middlewares"
-	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/repository"
-	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/repository/db/mysql"
+	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/middlewares"
+	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository"
+	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository/db/mysql"
+	httpHandler "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/interface/http"
+	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/pkg"
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/usecase"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -51,7 +51,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	log := logger.New(cfg.App.LogLevel)
+	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	slog.SetDefault(log)
 
 	db, err := mysql.ConnectDB(cfg.MySQL, cfg.App.LogLevel)
@@ -66,7 +66,7 @@ func main() {
 
 	quizUseCase := usecase.NewQuizUseCase(garbageItemRepo, garbageCategoryRepo, municipalityRepo)
 
-	quizHandler := handler.NewQuizHandler(quizUseCase)
+	quizHandler := httpHandler.NewQuizHandler(quizUseCase)
 
 	if cfg.App.LogLevel != "debug" {
 		gin.SetMode(gin.ReleaseMode)
@@ -75,7 +75,7 @@ func main() {
 	r := gin.New()
 
 	r.Use(gin.Recovery())
-	r.Use(middlewares.Logger(log))
+	r.Use(pkg.Logger(log))
 	r.Use(middlewares.CORS())
 
 	api := r.Group("/api/v1")

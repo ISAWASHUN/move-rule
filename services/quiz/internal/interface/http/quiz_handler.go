@@ -1,9 +1,9 @@
-package handler
+package http
 
 import (
 	"net/http"
 
-	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/errors"
+	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/pkg"
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/usecase"
 	"github.com/gin-gonic/gin"
 )
@@ -35,13 +35,6 @@ type PostAnswerResponse struct {
 	BulkGarbageFee  *int   `json:"bulk_garbage_fee" example:"500"`
 }
 
-type ErrorResponse struct {
-	Error struct {
-		Code    string `json:"code" example:"bad_request"`
-		Message string `json:"message" example:"リクエストの形式が不正です"`
-	} `json:"error"`
-}
-
 type QuizHandler struct {
 	quizUseCase usecase.QuizUseCase
 }
@@ -66,7 +59,7 @@ func (h *QuizHandler) GetQuestions(c *gin.Context) {
 
 	questions, err := h.quizUseCase.GenerateQuestions(ctx, defaultMunicipalityID, defaultQuestionCount)
 	if err != nil {
-		errors.HandleError(c, errors.NewInternalError("問題の取得に失敗しました", err))
+		pkg.HandleError(c, pkg.NewInternalError("問題の取得に失敗しました", err))
 		return
 	}
 
@@ -102,13 +95,13 @@ func (h *QuizHandler) PostAnswer(c *gin.Context) {
 
 	var req PostAnswerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		errors.HandleError(c, errors.NewBadRequestError("リクエストの形式が不正です", err))
+		pkg.HandleError(c, pkg.NewBadRequestError("リクエストの形式が不正です", err))
 		return
 	}
 
 	result, err := h.quizUseCase.CheckAnswer(ctx, req.QuestionID, req.SelectedCategory)
 	if err != nil {
-		errors.HandleError(c, errors.NewNotFoundError("指定された問題が見つかりません", err))
+		pkg.HandleError(c, pkg.NewNotFoundError("指定された問題が見つかりません", err))
 		return
 	}
 

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/domain"
-	models "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/repository/db/models"
+	models "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository/db/entity"
 	"gorm.io/gorm"
 )
 
