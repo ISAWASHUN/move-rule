@@ -1,0 +1,14 @@
+[server]
+host = "${SERVER_HOST:-"0.0.0.0"}"
+port = ${SERVER_PORT:-8080}
+
+[app]
+log_level = "${APP_LOG_LEVEL:-"info"}"
+
+[mysql]
+host      = "${MYSQL_MAIN_HOST:-"localhost"}"
+port      = "${MYSQL_MAIN_PORT:-3306}"
+user      = "${MYSQL_MAIN_USER:-"root"}"
+password  = "${MYSQL_MAIN_PASSWORD:-"password"}"
+db_name   = "${MYSQL_MAIN_DB_NAME:-"move_rule"}"
+ssl_mode  = "${MYSQL_MAIN_SSL_MODE:-"disable"}"

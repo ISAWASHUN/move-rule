@@ -1,0 +1,205 @@
+{
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "自治体のゴミ分別をクイズ形式で学習するためのAPI",
+        "title": "ゴミ分別クイズ API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/quiz/answer": {
+            "post": {
+                "description": "クイズの回答を送信し、正誤と正解情報を取得する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "quiz"
+                ],
+                "summary": "回答送信",
+                "parameters": [
+                    {
+                        "description": "回答リクエスト",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.PostAnswerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功時のレスポンス",
+                        "schema": {
+                            "$ref": "#/definitions/handler.PostAnswerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストエラー",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "問題が見つからない",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラー",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/quiz/questions": {
+            "get": {
+                "description": "ランダムで5問のクイズ問題を取得する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "quiz"
+                ],
+                "summary": "クイズ問題取得",
+                "responses": {
+                    "200": {
+                        "description": "成功時のレスポンス",
+                        "schema": {
+                            "$ref": "#/definitions/handler.GetQuestionsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラー",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handler.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "object",
+                    "properties": {
+                        "code": {
+                            "type": "string",
+                            "example": "bad_request"
+                        },
+                        "message": {
+                            "type": "string",
+                            "example": "リクエストの形式が不正です"
+                        }
+                    }
+                }
+            }
+        },
+        "handler.GetQuestionsResponse": {
+            "type": "object",
+            "properties": {
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.QuestionResponse"
+                    }
+                }
+            }
+        },
+        "handler.PostAnswerRequest": {
+            "type": "object",
+            "required": [
+                "question_id",
+                "selected_category"
+            ],
+            "properties": {
+                "question_id": {
+                    "type": "integer",
+                    "example": 123
+                },
+                "selected_category": {
+                    "type": "string",
+                    "example": "不燃"
+                }
+            }
+        },
+        "handler.PostAnswerResponse": {
+            "type": "object",
+            "properties": {
+                "bulk_garbage_fee": {
+                    "type": "integer",
+                    "example": 500
+                },
+                "correct_category": {
+                    "type": "string",
+                    "example": "不燃"
+                },
+                "is_correct": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "notes": {
+                    "type": "string",
+                    "example": "中身を使い切ってから"
+                },
+                "remarks": {
+                    "type": "string",
+                    "example": "スプレー缶は中身を使い切ってから不燃ごみとして出してください"
+                }
+            }
+        },
+        "handler.QuestionResponse": {
+            "type": "object",
+            "properties": {
+                "choices": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "不燃",
+                        "可燃",
+                        "資源",
+                        "有害ごみ"
+                    ]
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 123
+                },
+                "item_name": {
+                    "type": "string",
+                    "example": "スプレー缶"
+                }
+            }
+        }
+    }
+}
