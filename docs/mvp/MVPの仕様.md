@@ -68,7 +68,7 @@
 ```mermaid
 erDiagram
     municipalities ||--o{ garbage_items : "belongs_to"
-    waste_categories ||--o{ garbage_items : "categorizes"
+    garbage_categories ||--o{ garbage_items : "categorizes"
 
     municipalities {
         int id PK "AUTO_INCREMENT"
@@ -78,7 +78,7 @@ erDiagram
         datetime updated_at "レコード更新日時"
     }
 
-    waste_categories {
+    garbage_categories {
         int id PK "AUTO_INCREMENT"
         varchar name UK "分別区分名"
         datetime created_at "レコード作成日時"
@@ -88,7 +88,7 @@ erDiagram
     garbage_items {
         int id PK "AUTO_INCREMENT"
         int municipality_id FK "地方公共団体ID"
-        int waste_category_id FK "分別区分ID"
+        int garbage_category_id FK "分別区分ID"
         varchar area_name "地区名"
         varchar item_name "ゴミの品目"
         varchar item_name_kana "ゴミの品目_カナ"

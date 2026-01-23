@@ -1,0 +1,140 @@
+basePath: /api/v1
+definitions:
+  handler.ErrorResponse:
+    properties:
+      error:
+        properties:
+          code:
+            example: bad_request
+            type: string
+          message:
+            example: リクエストの形式が不正です
+            type: string
+        type: object
+    type: object
+  handler.GetQuestionsResponse:
+    properties:
+      questions:
+        items:
+          $ref: '#/definitions/handler.QuestionResponse'
+        type: array
+    type: object
+  handler.PostAnswerRequest:
+    properties:
+      question_id:
+        example: 123
+        type: integer
+      selected_category:
+        example: 不燃
+        type: string
+    required:
+    - question_id
+    - selected_category
+    type: object
+  handler.PostAnswerResponse:
+    properties:
+      bulk_garbage_fee:
+        example: 500
+        type: integer
+      correct_category:
+        example: 不燃
+        type: string
+      is_correct:
+        example: true
+        type: boolean
+      notes:
+        example: 中身を使い切ってから
+        type: string
+      remarks:
+        example: スプレー缶は中身を使い切ってから不燃ごみとして出してください
+        type: string
+    type: object
+  handler.QuestionResponse:
+    properties:
+      choices:
+        example:
+        - 不燃
+        - 可燃
+        - 資源
+        - 有害ごみ
+        items:
+          type: string
+        type: array
+      id:
+        example: 123
+        type: integer
+      item_name:
+        example: スプレー缶
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: 自治体のゴミ分別をクイズ形式で学習するためのAPI
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: ゴミ分別クイズ API
+  version: "1.0"
+paths:
+  /quiz/answer:
+    post:
+      consumes:
+      - application/json
+      description: クイズの回答を送信し、正誤と正解情報を取得する
+      parameters:
+      - description: 回答リクエスト
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.PostAnswerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功時のレスポンス
+          schema:
+            $ref: '#/definitions/handler.PostAnswerResponse'
+        "400":
+          description: リクエストエラー
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: 問題が見つからない
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: サーバーエラー
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: 回答送信
+      tags:
+      - quiz
+  /quiz/questions:
+    get:
+      consumes:
+      - application/json
+      description: ランダムで5問のクイズ問題を取得する
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功時のレスポンス
+          schema:
+            $ref: '#/definitions/handler.GetQuestionsResponse'
+        "500":
+          description: サーバーエラー
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: クイズ問題取得
+      tags:
+      - quiz
+schemes:
+- http
+- https
+swagger: "2.0"

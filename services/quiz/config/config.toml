@@ -1,0 +1,14 @@
+[server]
+host = "0.0.0.0"
+port = 8080
+
+[app]
+log_level = "debug"
+
+[mysql]
+host      = "localhost"
+port      = "3306"
+user      = "root"
+password  = "password"
+db_name   = "move_rule"
+ssl_mode  = "disable"
