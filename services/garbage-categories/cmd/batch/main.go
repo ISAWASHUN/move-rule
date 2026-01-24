@@ -121,7 +121,7 @@ func connectDB() (*gorm.DB, error) {
 	port := getEnv("DB_PORT", "3306")
 	user := getEnv("DB_USER", "root")
 	password := getEnv("DB_PASSWORD", "password")
-	dbname := getEnv("DB_NAME", "move_rule")
+	dbname := getEnv("DB_NAME", "garbage_category_rule_quiz")
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		user, password, host, port, dbname)
