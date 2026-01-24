@@ -6,11 +6,12 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lambda.norpc -o bootstrap ./cmd
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bootstrap ./cmd
 
-# Lambda用の軽量イメージ
+# Lambda用のprovidedイメージ（Lambda Runtime Interface Client含む）
 FROM public.ecr.aws/lambda/provided:al2023
 
 COPY --from=builder /app/bootstrap ${LAMBDA_RUNTIME_DIR}/bootstrap
 
+# ENTRYPOINTはベースイメージに含まれているため、CMDのみ指定
 CMD ["bootstrap"]

@@ -5,7 +5,7 @@ SERVICE_NAME = fetch-garbage-categories
 AWS_REGION ?= ap-northeast-1
 AWS_ACCOUNT_ID ?= $(shell aws sts get-caller-identity --query Account --output text)
 ECR_REGISTRY = $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
-IMAGE_REPOSITORY = $(ECR_REGISTRY)/$(SERVICE_NAME)
+IMAGE_REPOSITORY = $(ECR_REGISTRY)/$(SERVICE_NAME)-$(ENV)
 GIT_COMMIT_HASH ?= $(shell git rev-parse --short HEAD)
 ENV ?= stg
 
@@ -15,19 +15,22 @@ LAMBDA_FUNCTION_NAME = $(SERVICE_NAME)-$(ENV)
 # ローカルでビルドする
 # e.g. make build
 build:
-	docker build -t $(SERVICE_NAME):$(GIT_COMMIT_HASH) .
-	docker tag $(SERVICE_NAME):$(GIT_COMMIT_HASH) $(SERVICE_NAME):latest
+	docker build \
+		-t $(SERVICE_NAME):$(GIT_COMMIT_HASH) \
+		-t $(SERVICE_NAME):latest \
+		.
 
 # ECRにログインする
 # e.g. make ecr-login
 ecr-login:
 	aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(ECR_REGISTRY)
+
 # Dockerイメージをタグ付けしてECRにプッシュする
 # e.g. make push
-push: ecr-login
+push: build ecr-login
 	docker tag $(SERVICE_NAME):$(GIT_COMMIT_HASH) $(IMAGE_REPOSITORY):$(GIT_COMMIT_HASH)
-	docker tag $(SERVICE_NAME):$(GIT_COMMIT_HASH) $(IMAGE_REPOSITORY):latest
 	docker push $(IMAGE_REPOSITORY):$(GIT_COMMIT_HASH)
+	docker tag $(SERVICE_NAME):$(GIT_COMMIT_HASH) $(IMAGE_REPOSITORY):latest
 	docker push $(IMAGE_REPOSITORY):latest
 
 # Lambda関数のコードを更新する
