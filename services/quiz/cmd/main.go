@@ -30,7 +30,7 @@ import (
 	_ "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/docs"
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/middlewares"
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository"
-	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository/db/mysql"
+	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository/mysql"
 	httpHandler "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/interface/http"
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/pkg"
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/usecase"
@@ -92,6 +92,11 @@ func main() {
 	})
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	// 404ハンドラー（JSON形式でエラーを返す）
+	r.NoRoute(func(c *gin.Context) {
+		pkg.HandleError(c, pkg.NewNotFoundError("エンドポイントが見つかりません", nil))
+	})
 
 	addr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port)
 	srv := &http.Server{

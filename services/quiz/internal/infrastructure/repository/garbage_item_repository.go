@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/domain"
-	models "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository/db/entity"
+	entity "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository/entity"
 	"gorm.io/gorm"
 )
 
@@ -21,7 +21,7 @@ func NewGarbageItemRepository(db *gorm.DB) GarbageItemRepository {
 }
 
 func (r *garbageItemRepository) GetByMunicipalityID(ctx context.Context, municipalityID int) ([]domain.GarbageItem, error) {
-	var items []models.GarbageItem
+	var items []entity.GarbageItem
 	err := r.db.WithContext(ctx).
 		Where("municipality_id = ?", municipalityID).
 		Find(&items).Error
@@ -37,7 +37,7 @@ func (r *garbageItemRepository) GetByMunicipalityID(ctx context.Context, municip
 }
 
 func (r *garbageItemRepository) GetByID(ctx context.Context, id int) (*domain.GarbageItem, error) {
-	var item models.GarbageItem
+	var item entity.GarbageItem
 	err := r.db.WithContext(ctx).First(&item, id).Error
 	if err != nil {
 		return nil, err
@@ -48,13 +48,13 @@ func (r *garbageItemRepository) GetByID(ctx context.Context, id int) (*domain.Ga
 }
 
 func (r *garbageItemRepository) GetByIDWithCategory(ctx context.Context, id int) (*domain.GarbageItem, *domain.GarbageCategory, error) {
-	var item models.GarbageItem
+	var item entity.GarbageItem
 	err := r.db.WithContext(ctx).First(&item, id).Error
 	if err != nil {
 		return nil, nil, err
 	}
 
-	var category models.GarbageCategory
+	var category entity.GarbageCategory
 	err = r.db.WithContext(ctx).First(&category, item.GarbageCategoryID).Error
 	if err != nil {
 		return nil, nil, err
@@ -65,7 +65,7 @@ func (r *garbageItemRepository) GetByIDWithCategory(ctx context.Context, id int)
 	return &domainItem, &domainCategory, nil
 }
 
-func toDomainGarbageItem(m models.GarbageItem) domain.GarbageItem {
+func toDomainGarbageItem(m entity.GarbageItem) domain.GarbageItem {
 	return domain.GarbageItem{
 		ID:                domain.GarbageItemID(m.ID),
 		MunicipalityID:    domain.MunicipalityID(m.MunicipalityID),
@@ -78,7 +78,7 @@ func toDomainGarbageItem(m models.GarbageItem) domain.GarbageItem {
 	}
 }
 
-func toDomainGarbageCategory(m models.GarbageCategory) domain.GarbageCategory {
+func toDomainGarbageCategory(m entity.GarbageCategory) domain.GarbageCategory {
 	return domain.GarbageCategory{
 		ID:   domain.GarbageCategoryID(m.ID),
 		Name: m.Name,

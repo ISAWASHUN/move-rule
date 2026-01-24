@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/domain"
-	models "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository/db/entity"
+	entity "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository/entity"
 	"gorm.io/gorm"
 )
 
@@ -21,7 +21,7 @@ func NewGarbageCategoryRepository(db *gorm.DB) GarbageCategoryRepository {
 }
 
 func (r *garbageCategoryRepository) GetAll(ctx context.Context) ([]domain.GarbageCategory, error) {
-	var categories []models.GarbageCategory
+	var categories []entity.GarbageCategory
 	err := r.db.WithContext(ctx).Find(&categories).Error
 	if err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func (r *garbageCategoryRepository) GetAll(ctx context.Context) ([]domain.Garbag
 }
 
 func (r *garbageCategoryRepository) GetByName(ctx context.Context, name string) (*domain.GarbageCategory, error) {
-	var category models.GarbageCategory
+	var category entity.GarbageCategory
 	err := r.db.WithContext(ctx).Where("name = ?", name).First(&category).Error
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (r *garbageCategoryRepository) GetByName(ctx context.Context, name string) 
 }
 
 func (r *garbageCategoryRepository) GetByID(ctx context.Context, id int) (*domain.GarbageCategory, error) {
-	var category models.GarbageCategory
+	var category entity.GarbageCategory
 	err := r.db.WithContext(ctx).First(&category, id).Error
 	if err != nil {
 		return nil, err

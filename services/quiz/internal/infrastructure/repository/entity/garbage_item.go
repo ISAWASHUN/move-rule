@@ -1,6 +1,6 @@
 package mysql
 
-import "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository/db/mysql"
+import "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository/mysql"
 
 type GarbageItem struct {
 	ID                int    `gorm:"primaryKey"`

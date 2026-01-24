@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/domain"
-	models "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository/db/entity"
+	entity "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository/entity"
 	"gorm.io/gorm"
 )
 
@@ -21,7 +21,7 @@ func NewMunicipalityRepository(db *gorm.DB) MunicipalityRepository {
 }
 
 func (r *municipalityRepository) GetByName(ctx context.Context, name string) (*domain.Municipality, error) {
-	var municipality models.Municipality
+	var municipality entity.Municipality
 	err := r.db.WithContext(ctx).Where("name = ?", name).First(&municipality).Error
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (r *municipalityRepository) GetByName(ctx context.Context, name string) (*d
 }
 
 func (r *municipalityRepository) GetByID(ctx context.Context, id int) (*domain.Municipality, error) {
-	var municipality models.Municipality
+	var municipality entity.Municipality
 	err := r.db.WithContext(ctx).First(&municipality, id).Error
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (r *municipalityRepository) GetByID(ctx context.Context, id int) (*domain.M
 }
 
 func (r *municipalityRepository) GetByCode(ctx context.Context, code int) (*domain.Municipality, error) {
-	var municipality models.Municipality
+	var municipality entity.Municipality
 	err := r.db.WithContext(ctx).Where("code = ?", code).First(&municipality).Error
 	if err != nil {
 		return nil, err

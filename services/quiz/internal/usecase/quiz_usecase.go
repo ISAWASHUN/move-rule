@@ -52,6 +52,8 @@ func (u *quizUseCase) GenerateQuestions(ctx context.Context, municipalityID int,
 	}
 
 	if len(allItems) == 0 {
+		// データが存在しない場合は空配列を返す
+		// データベースにデータを投入する必要があります
 		return []Question{}, nil
 	}
 
