@@ -36,7 +36,7 @@ go run main.go
 >
 2026/01/17 20:55:47 INFO start db-migrator
 2026/01/17 20:55:47 INFO mode !BADKEY=up
-2026/01/17 20:55:47 INFO dbName !BADKEY=move_rule
+2026/01/17 20:55:47 INFO dbName !BADKEY=garbage_category_rule_quiz
 2026/01/17 20:55:47 INFO connected to default db
 2026/01/17 20:55:47 INFO Migrations applied successfully
 ```
@@ -57,7 +57,7 @@ make new DB=[DB名] NAME=[マイグレーションファイル名]
 例：
 
 ```bash
-make new DB=move_rule NAME=create_users
+make new DB=garbage_category_rule_quiz NAME=create_users
 ```
 
 これにより、`db/[DB名]/migrations/`ディレクトリに以下の 2つのファイルが生成されます。
@@ -85,7 +85,7 @@ make up DB=[DB名]
 例：
 
 ```bash
-make up DB=move_rule
+make up DB=garbage_category_rule_quiz
 ```
 
 ### マイグレーションのロールバック(1 つのバージョンのみ)

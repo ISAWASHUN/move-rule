@@ -4,8 +4,6 @@ CREATE TABLE garbage_items (
     garbage_category_id INT NOT NULL COMMENT '分別区分ID',
     area_name VARCHAR(255) COMMENT '地区名',
     item_name VARCHAR(255) NOT NULL COMMENT 'ゴミの品目',
-    item_name_kana VARCHAR(255) COMMENT 'ゴミの品目_カナ',
-    item_name_english VARCHAR(255) COMMENT 'ゴミの品目_英字',
     notes TEXT COMMENT '注意点',
     remarks TEXT COMMENT '備考',
     bulk_garbage_fee INT COMMENT '粗大ごみ回収料金',

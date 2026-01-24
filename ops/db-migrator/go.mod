@@ -1,4 +1,4 @@
-module github.com/ISAWASHUN/move-rule/ops/db-migrator
+module github.com/ISAWASHUN/garbage-category-rule-quiz/ops/db-migrator
 
 go 1.25.5
 

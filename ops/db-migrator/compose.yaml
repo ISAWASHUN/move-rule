@@ -1,9 +1,9 @@
 services:
   db:
     image: mysql:8
-    container_name: db-move-rule
+    container_name: db-garbage-category-rule-quiz
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-move-rule}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-garbage_category_rule_quiz}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
     ports:
       - "3306:3306"
