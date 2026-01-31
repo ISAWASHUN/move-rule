@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/pelletier/go-toml/v2"
@@ -34,6 +35,7 @@ type Config struct {
 
 var validate = validator.New()
 
+// Load はTOMLファイルから設定を読み込みます（ローカル開発用）
 func Load(path string) (*Config, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -51,4 +53,36 @@ func Load(path string) (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+// LoadFromEnv は環境変数から設定を読み込みます（Lambda用）
+func LoadFromEnv() *Config {
+	port, _ := strconv.Atoi(getEnv("SERVER_PORT", "8080"))
+
+	return &Config{
+		Server: Server{
+			Host: getEnv("SERVER_HOST", "0.0.0.0"),
+			Port: port,
+		},
+		App: App{
+			LogLevel: getEnv("APP_LOG_LEVEL", "info"),
+		},
+		MySQL: MySQL{
+			Host:     getEnv("DB_HOST", "localhost"),
+			Port:     getEnv("DB_PORT", "3306"),
+			User:     getEnv("DB_USER", "root"),
+			Password: getEnv("DB_PASSWORD", "password"),
+			DBName:   getEnv("DB_NAME", "garbage_category_rule_quiz"),
+			SSLMode:  getEnv("DB_SSL_MODE", "disable"),
+			UseMock:  getEnv("DB_USE_MOCK", "false") == "true",
+		},
+	}
+}
+
+// getEnv は環境変数を取得します。存在しない場合はデフォルト値を返します
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
 }

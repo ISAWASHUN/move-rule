@@ -28,6 +28,7 @@ import (
 
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/config"
 	_ "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/docs"
+	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/domain"
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/middlewares"
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository"
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository/mysql"
@@ -40,29 +41,38 @@ import (
 )
 
 func main() {
-	configPath := os.Getenv("CONFIG_PATH")
-	if configPath == "" {
-		configPath = "config/config.toml"
-	}
+	var cfg *config.Config
+	var err error
 
-	cfg, err := config.Load(configPath)
-	if err != nil {
-		slog.Error("failed to load config", "error", err)
-		os.Exit(1)
+	// ECS環境では環境変数から読み込む
+	if os.Getenv("DB_HOST") != "" {
+		cfg = config.LoadFromEnv()
+	} else {
+		// ローカル開発環境ではconfig.tomlファイルから読み込む
+		configPath := os.Getenv("CONFIG_PATH")
+		if configPath == "" {
+			configPath = "config/config.toml"
+		}
+		cfg, err = config.Load(configPath)
+		if err != nil {
+			slog.Error("failed to load config", "error", err)
+			os.Exit(1)
+		}
 	}
 
 	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	slog.SetDefault(log)
 
-	db, err := mysql.ConnectDB(cfg.MySQL, cfg.App.LogLevel)
+	db, err := mysql.NewMySQL(cfg)
 	if err != nil {
 		log.Error("failed to connect to database", "error", err)
 		os.Exit(1)
 	}
 
-	garbageItemRepo := repository.NewGarbageItemRepository(db)
-	garbageCategoryRepo := repository.NewGarbageCategoryRepository(db)
-	municipalityRepo := repository.NewMunicipalityRepository(db)
+	// DI: infrastructure層の実装をdomain層のインターフェースとして注入
+	var garbageItemRepo domain.GarbageItemRepository = repository.NewGarbageItemRepository(db)
+	var garbageCategoryRepo domain.GarbageCategoryRepository = repository.NewGarbageCategoryRepository(db)
+	var municipalityRepo domain.MunicipalityRepository = repository.NewMunicipalityRepository(db)
 
 	quizUseCase := usecase.NewQuizUseCase(garbageItemRepo, garbageCategoryRepo, municipalityRepo)
 
@@ -77,19 +87,19 @@ func main() {
 	r.Use(gin.Recovery())
 	r.Use(pkg.Logger(log))
 	r.Use(middlewares.CORS())
-
+	
 	api := r.Group("/api/v1")
 	{
+		api.GET("/health", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"status": "ok"})
+		})
+
 		quiz := api.Group("/quiz")
 		{
 			quiz.GET("/questions", quizHandler.GetQuestions)
 			quiz.POST("/answer", quizHandler.PostAnswer)
 		}
 	}
-
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
-	})
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -129,3 +139,4 @@ func main() {
 
 	log.Info("server exited properly")
 }
+

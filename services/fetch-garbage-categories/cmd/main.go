@@ -40,7 +40,6 @@ func main() {
 	}
 }
 
-// handler はLambdaハンドラー関数
 func handler(ctx context.Context) (Response, error) {
 	if err := run(ctx); err != nil {
 		return Response{
@@ -55,7 +54,6 @@ func handler(ctx context.Context) (Response, error) {
 	}, nil
 }
 
-// run はメインのビジネスロジック
 func run(ctx context.Context) error {
 	cfg := config.Load()
 	urls := []string{itabashiUrl}
@@ -74,7 +72,6 @@ func run(ctx context.Context) error {
 		}
 		storage, desc = s, d
 	} else {
-		// ローカル環境の場合はファイルに保存
 		outputDir := getOutputDir()
 		storage = s3storage.NewJSONStorage(outputDir)
 		desc = outputDir
@@ -105,13 +102,11 @@ func newS3Storage(ctx context.Context, cfg *config.Config) (domain.Storage, stri
 }
 
 func getOutputDir() string {
-	// プロジェクトルート（go.modがある場所）を特定
 	projectRoot := findProjectRoot()
 	return filepath.Join(projectRoot, "internal/infrastructure/storage/file")
 }
 
 func findProjectRoot() string {
-	// カレントディレクトリからgo.modを探す
 	wd, err := os.Getwd()
 	if err != nil {
 		return "."
@@ -126,7 +121,6 @@ func findProjectRoot() string {
 
 		parentDir := filepath.Dir(currentDir)
 		if parentDir == currentDir {
-			// ルートディレクトリに到達した場合はカレントディレクトリを返す
 			return wd
 		}
 		currentDir = parentDir

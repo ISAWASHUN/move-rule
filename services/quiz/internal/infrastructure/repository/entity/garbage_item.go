@@ -1,7 +1,5 @@
 package mysql
 
-import "github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository/mysql"
-
 type GarbageItem struct {
 	ID                int    `gorm:"primaryKey"`
 	MunicipalityID    int    `gorm:"not null"`
@@ -11,5 +9,5 @@ type GarbageItem struct {
 	Notes             string `gorm:"type:text"`
 	Remarks           string `gorm:"type:text"`
 	BulkGarbageFee    int    `gorm:"type:int"`
-	mysql.Timestamp
+	Timestamp
 }

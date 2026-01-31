@@ -8,8 +8,13 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main ./cmd
 
-FROM public.ecr.aws/lambda/go:1
+FROM gcr.io/distroless/base-debian12
+WORKDIR /app
 
-COPY --from=builder /app/main ${LAMBDA_TASK_ROOT}
+COPY --from=builder /app/main .
 
-CMD ["main"]
+USER 65532
+
+EXPOSE 8080
+
+CMD ["./main"]

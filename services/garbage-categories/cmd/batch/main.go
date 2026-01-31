@@ -9,9 +9,8 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"time"
 
-	"gorm.io/driver/mysql"
+	"github.com/ISAWASHUN/garbage-category-rule-quiz/pkg/mysql"
 	"gorm.io/gorm"
 )
 
@@ -59,31 +58,28 @@ type Hits struct {
 }
 
 type Municipality struct {
-	ID        int       `gorm:"primaryKey;autoIncrement"`
-	Code      int       `gorm:"uniqueIndex;not null"`
-	Name      string    `gorm:"size:255;not null"`
-	CreatedAt time.Time `gorm:"autoCreateTime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+	ID   int    `gorm:"primaryKey;autoIncrement"`
+	Code int    `gorm:"uniqueIndex;not null"`
+	Name string `gorm:"size:255;not null"`
+	mysql.Timestamp
 }
 
 type GarbageCategory struct {
-	ID        int       `gorm:"primaryKey;autoIncrement"`
-	Name      string    `gorm:"size:255;uniqueIndex;not null"`
-	CreatedAt time.Time `gorm:"autoCreateTime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+	ID   int    `gorm:"primaryKey;autoIncrement"`
+	Name string `gorm:"size:255;uniqueIndex;not null"`
+	mysql.Timestamp
 }
 
 type GarbageItem struct {
-	ID              int       `gorm:"primaryKey;autoIncrement"`
-	MunicipalityID  int       `gorm:"not null"`
-	GarbageCategoryID int       `gorm:"not null"`
-	AreaName        string    `gorm:"size:255"`
-	ItemName        string    `gorm:"size:255;not null"`
-	Notes           string    `gorm:"type:text"`
-	Remarks         string    `gorm:"type:text"`
-	BulkGarbageFee  *int      `gorm:"type:int"`
-	CreatedAt       time.Time `gorm:"autoCreateTime"`
-	UpdatedAt       time.Time `gorm:"autoUpdateTime"`
+	ID              int    `gorm:"primaryKey;autoIncrement"`
+	MunicipalityID  int    `gorm:"not null"`
+	GarbageCategoryID int    `gorm:"not null"`
+	AreaName        string `gorm:"size:255"`
+	ItemName        string `gorm:"size:255;not null"`
+	Notes           string `gorm:"type:text"`
+	Remarks         string `gorm:"type:text"`
+	BulkGarbageFee *int   `gorm:"type:int"`
+	mysql.Timestamp
 }
 
 func main() {
@@ -117,16 +113,16 @@ func main() {
 }
 
 func connectDB() (*gorm.DB, error) {
-	host := getEnv("DB_HOST", "localhost")
-	port := getEnv("DB_PORT", "3306")
-	user := getEnv("DB_USER", "root")
-	password := getEnv("DB_PASSWORD", "password")
-	dbname := getEnv("DB_NAME", "garbage_category_rule_quiz")
+	cfg := mysql.Config{
+		Host:     getEnv("DB_HOST", "localhost"),
+		Port:     getEnv("DB_PORT", "3306"),
+		User:     getEnv("DB_USER", "root"),
+		Password: getEnv("DB_PASSWORD", "password"),
+		DBName:   getEnv("DB_NAME", "garbage_category_rule_quiz"),
+	}
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		user, password, host, port, dbname)
-
-	return gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	logLevel := getEnv("LOG_LEVEL", "info")
+	return mysql.ConnectDB(cfg, logLevel)
 }
 
 func getEnv(key, defaultValue string) string {

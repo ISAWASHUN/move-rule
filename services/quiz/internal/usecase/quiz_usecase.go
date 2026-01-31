@@ -5,7 +5,6 @@ import (
 	"math/rand"
 
 	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/domain"
-	"github.com/ISAWASHUN/garbage-category-rule-quiz/services/quiz/internal/infrastructure/repository"
 )
 
 type Question struct {
@@ -28,15 +27,15 @@ type QuizUseCase interface {
 }
 
 type quizUseCase struct {
-	garbageItemRepo     repository.GarbageItemRepository
-	garbageCategoryRepo repository.GarbageCategoryRepository
-	municipalityRepo    repository.MunicipalityRepository
+	garbageItemRepo     domain.GarbageItemRepository
+	garbageCategoryRepo domain.GarbageCategoryRepository
+	municipalityRepo    domain.MunicipalityRepository
 }
 
 func NewQuizUseCase(
-	garbageItemRepo repository.GarbageItemRepository,
-	garbageCategoryRepo repository.GarbageCategoryRepository,
-	municipalityRepo repository.MunicipalityRepository,
+	garbageItemRepo domain.GarbageItemRepository,
+	garbageCategoryRepo domain.GarbageCategoryRepository,
+	municipalityRepo domain.MunicipalityRepository,
 ) QuizUseCase {
 	return &quizUseCase{
 		garbageItemRepo:     garbageItemRepo,
@@ -52,8 +51,6 @@ func (u *quizUseCase) GenerateQuestions(ctx context.Context, municipalityID int,
 	}
 
 	if len(allItems) == 0 {
-		// データが存在しない場合は空配列を返す
-		// データベースにデータを投入する必要があります
 		return []Question{}, nil
 	}
 
